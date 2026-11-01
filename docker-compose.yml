@@ -1,0 +1,15 @@
+services:
+  studypilot:
+    build: .
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      PORT: 3001
+      DB_PATH: /app/server/data/studypilot.db
+      CLIENT_DIST: /app/client/dist
+    volumes:
+      - studypilot-data:/app/server/data
+volumes:
+  studypilot-data:
