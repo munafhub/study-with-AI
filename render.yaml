@@ -1,0 +1,40 @@
+# StudyPilot AI - Render Blueprint (free plan, no credit card required).
+#
+# Secrets are declared with `sync: false` so their values are NEVER stored in this
+# repo. Fill them in once in the Render dashboard (Service -> Environment).
+#
+# NOTE: the free plan has an ephemeral filesystem, so the SQLite database in
+# server/data/ is reset whenever the service sleeps (after 15 min idle) or redeploys.
+services:
+  - type: web
+    name: studypilot-ai
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    # Node 22.16+ is required: server/src/db.js uses the built-in `node:sqlite`
+    # (DatabaseSync), which needs Node >= 22.13 to run without an experimental flag.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start --workspace server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22.16.0"
+      - key: NODE_ENV
+        value: production
+      - key: AI_PROVIDER
+        value: auto
+      # Optional: set the same model you use locally. Blank falls back to gemini-2.5-flash.
+      - key: GEMINI_MODEL
+        sync: false
+      - key: SESSION_TTL_DAYS
+        value: "7"
+      - key: CORS_ORIGIN
+        value: "*"
+      # --- Secrets: set these in the Render dashboard, never in git ---
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
