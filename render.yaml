@@ -24,7 +24,7 @@ services:
         value: production
       - key: AI_PROVIDER
         value: auto
-      # Optional: set the same model you use locally. Blank falls back to gemini-2.5-flash.
+      # Optional: set the same model you use locally. Blank falls back to gemini-3.8-flash.
       - key: GEMINI_MODEL
         sync: false
       - key: SESSION_TTL_DAYS

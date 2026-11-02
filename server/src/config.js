@@ -15,7 +15,8 @@ export function loadConfig(env = process.env) {
     anthropicApiKey: env.ANTHROPIC_API_KEY || '',
     anthropicModel: env.ANTHROPIC_MODEL || 'claude-sonnet-5-5',
     geminiApiKey: env.GEMINI_API_KEY || '',
-    geminiModel: env.GEMINI_MODEL || 'gemini-2.5-flash',
+    // gemini-2.5-flash was retired for new users; 3.8-flash is the current flash model.
+    geminiModel: env.GEMINI_MODEL || 'gemini-3.8-flash',
     openaiApiKey: env.OPENAI_API_KEY || '',
     openaiModel: env.OPENAI_MODEL || 'gpt-4o-mini',
     aiProvider: (env.AI_PROVIDER || 'auto').toLowerCase(),

@@ -80,7 +80,10 @@ export function createGeminiProvider({ apiKey, model, fetchImpl = globalThis.fet
       if (!response.ok) {
         logger.error?.(`Gemini API returned HTTP ${response.status}`);
         if (response.status === 429) throw new HttpError(503, 'AI_BUSY', 'The AI service is busy or its usage limit was reached. Please try again later.');
-        throw new HttpError(503, 'AI_UNAVAILABLE', 'The Gemini AI service is unavailable. Check the API key, model, and API access.');
+        // Distinct messages so a dead model name is never confused with an overloaded one.
+        if (response.status === 404) throw new HttpError(503, 'AI_MODEL_NOT_FOUND', `The Gemini model "${model}" is not available to this API key (HTTP 404). Set GEMINI_MODEL to a model your key can access.`);
+        if (response.status === 503) throw new HttpError(503, 'AI_BUSY', `The Gemini model "${model}" is temporarily overloaded (HTTP 503). Please try again in a moment.`);
+        throw new HttpError(503, 'AI_UNAVAILABLE', `The Gemini request failed (HTTP ${response.status}). Check the API key, model, and API access.`);
       }
       const data = await response.json();
       const parts = data.candidates?.[0]?.content?.parts ?? [];
