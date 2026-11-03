@@ -5,7 +5,7 @@ import { HttpError } from '../errors.js';
  * Google retires models regularly (e.g. gemini-2.5-flash is gone for new keys), so a stale
  * GEMINI_MODEL must not be able to break every AI feature.
  */
-const FALLBACK_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+const FALLBACK_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
 
 /** Gemini REST adapter that preserves the app's existing tool-call interface. */
 export function createGeminiProvider({ apiKey, model, fetchImpl = globalThis.fetch, timeoutMs = 45000, logger = console }) {
@@ -95,8 +95,10 @@ export function createGeminiProvider({ apiKey, model, fetchImpl = globalThis.fet
         }
 
         logger.error?.(`Gemini API returned HTTP ${response.status} for ${candidate}`);
-        // Only a dead or overloaded model is worth retrying with another model name.
-        if ((response.status === 404 || response.status === 503) && attempt < candidates.length - 1) {
+        // Retired (404), overloaded (503) or rate-limited (429) models are worth retrying with
+        // another model name: free-tier quotas are tracked per model, so one model can be
+        // exhausted while another still answers.
+        if ((response.status === 404 || response.status === 503 || response.status === 429) && attempt < candidates.length - 1) {
           logger.warn?.(`Gemini model "${candidate}" unusable (HTTP ${response.status}); trying "${candidates[attempt + 1]}".`);
           continue;
         }
